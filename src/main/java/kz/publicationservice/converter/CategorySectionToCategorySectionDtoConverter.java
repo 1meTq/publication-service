@@ -2,24 +2,40 @@ package kz.publicationservice.converter;
 
 import kz.publicationservice.model.dto.CategoryDto;
 import kz.publicationservice.model.dto.CategorySectionDto;
-import kz.publicationservice.model.entity.Category;
 import kz.publicationservice.model.entity.CategorySection;
-import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 public class CategorySectionToCategorySectionDtoConverter {
 
-    @NonNull
-    public CategorySectionDto convert(CategorySection source, CategorySectionDto target, String language){
+    private final CategoryToCategoryDtoConverter categoryToCategoryDtoConverter;
+
+    public CategorySectionDto convert(CategorySection source, String language) {
+        CategorySectionDto target = new CategorySectionDto();
         String name = source.getNames().get(language);
         target.setName(name);
+        target.setId(source.getId());
+
+        List<CategoryDto> categories = categoryToCategoryDtoConverter.convertList(source.getCategories(), language);
+        target.setCategories(categories);
+
         return target;
     }
 
-    @NonNull
-    public List<CategorySectionDto> 
+    public List<CategorySectionDto> convertList(List<CategorySection> categorySections, String language) {
+
+        List<CategorySectionDto> targetList = new ArrayList<>();
+
+        categorySections.forEach(categorySection -> {
+            targetList.add(convert(categorySection, language));
+        });
+
+        return targetList;
+    }
 
 }
